@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bridgepoint Integration — Earned in Production. Shared Openly.</title>
+<meta name="description" content="Practical integration knowledge from 10+ years in the field. Dell Boomi, Workato, IFS Cloud. Real lessons, not theory."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy: #0C447C;
+  --blue: #185FA5;
+  --mid: #378ADD;
+  --light: #B5D4F4;
+  --pale: #E6F1FB;
+  --ink: #0d1117;
+  --white: #ffffff;
+  --off: #F5F4F0;
+  --muted: #6b7280;
+  --border: rgba(24,95,165,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: 'Instrument Sans', sans-serif;
+  background: var(--ink);
+  color: var(--white);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Custom cursor */
+.cursor {
+  width: 8px; height: 8px;
+  background: var(--mid);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9999;
+  transition: transform 0.15s ease;
+  mix-blend-mode: screen;
+}
+.cursor-ring {
+  width: 32px; height: 32px;
+  border: 1px solid rgba(55,138,221,0.4);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9998;
+  transition: transform 0.35s ease, width 0.3s, height 0.3s, border-color 0.3s;
+}
+body:hover .cursor-ring { border-color: rgba(55,138,221,0.4); }
+
+/* Nav */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(24px, 5vw, 80px);
+  height: 68px;
+  background: rgba(13,17,23,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
+}
+
+.nav-logo-mark {
+  display: flex; align-items: center; gap: 0;
+}
+
+.nav-wordmark {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px; font-weight: 700;
+  color: var(--white); letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.nav-wordmark span { color: var(--mid); }
+
+.nav-links {
+  display: flex; gap: 36px; list-style: none;
+}
+.nav-links a {
+  color: rgba(255,255,255,0.5);
+  text-decoration: none; letter-spacing: 0.04em;
+  transition: color 0.2s;
+  font-family: 'Syne', sans-serif;
+  text-transform: uppercase;
+  font-size: 11px;
+  cursor: pointer;
+}
+.nav-links a:hover { color: var(--white); }
+
+.nav-cta {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; font-weight: 600;
+  padding: 9px 20px; border-radius: 4px;
+  background: var(--blue); color: white;
+  text-decoration: none; letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background 0.2s, transform 0.1s;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.nav-cta:hover { background: var(--mid); transform: translateY(-1px); }
+
+/* Hero */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 100px clamp(24px, 5vw, 80px) 60px;
+  position: relative;
+  overflow: hidden;
+  gap: 60px;
+}
+
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 60% at 80% 50%, rgba(24,95,165,0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 10% 80%, rgba(55,138,221,0.06) 0%, transparent 60%);
+}
+
+.hero-lines {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.hero-content { position: relative; z-index: 2; }
+
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.15em;
+  color: var(--mid); text-transform: uppercase;
+  margin-bottom: 32px;
+}
+.hero-tag::before {
+  content: '';
+  width: 28px; height: 1px;
+  background: var(--mid);
+}
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(44px, 5.5vw, 76px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin-bottom: 28px;
+}
+
+.hero h1 .accent {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+}
+
+.hero h1 .highlight { color: var(--light); }
+
+.hero-sub {
+  font-size: 17px; line-height: 1.75;
+  color: rgba(255,255,255,0.5);
+  max-width: 460px;
+  margin-bottom: 48px;
+}
+
+.hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+
+.btn-primary {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; font-weight: 600;
+  padding: 14px 28px; border-radius: 4px;
+  background: var(--white); color: var(--ink);
+  text-decoration: none; letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.btn-primary:hover { background: var(--pale); transform: translateY(-2px); }
+
+.btn-outline {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; font-weight: 600;
+  padding: 14px 28px; border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7);
+  text-decoration: none; letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+.btn-outline:hover { border-color: rgba(255,255,255,0.4); color: white; transform: translateY(-2px); }
+
+/* Hero visual */
+.hero-visual {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.node-diagram {
+  width: 100%; max-width: 480px;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+
+/* Trust bar */
+.trust {
+  padding: 24px clamp(24px, 5vw, 80px);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; gap: 32px;
+  flex-wrap: wrap;
+  background: rgba(255,255,255,0.02);
+}
+
+.trust-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  white-space: nowrap;
+}
+
+.trust-items { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.trust-item {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 6px 14px; border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+.trust-item:hover { border-color: var(--mid); color: var(--light); }
+
+/* Sections */
+section { padding: clamp(80px, 10vw, 130px) clamp(24px, 5vw, 80px); }
+
+.section-tag {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--mid);
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-tag::before { content: ''; width: 20px; height: 1px; background: var(--mid); }
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(34px, 4vw, 54px);
+  font-weight: 800; line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+
+.section-sub {
+  font-size: 17px; line-height: 1.75;
+  color: rgba(255,255,255,0.45);
+  max-width: 540px;
+  margin-bottom: 64px;
+}
+
+/* Services */
+#services { background: rgba(255,255,255,0.01); }
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.service-card {
+  background: var(--ink);
+  padding: 40px 32px;
+  transition: background 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.service-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--mid));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.3s ease;
+}
+.service-card:hover { background: rgba(24,95,165,0.08); }
+.service-card:hover::before { transform: scaleX(1); }
+
+.service-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.15); text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.service-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px; font-weight: 700;
+  color: var(--white); margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.service-desc {
+  font-size: 14px; line-height: 1.7;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 24px;
+}
+
+.service-price {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; font-weight: 600;
+  color: var(--mid); letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* How it works */
+#how { background: var(--ink); }
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.step {
+  padding: 40px 32px;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+}
+.step:last-child { border-right: none; }
+
+.step-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 72px; font-weight: 800;
+  line-height: 1;
+  color: rgba(255,255,255,0.04);
+  margin-bottom: 20px;
+  letter-spacing: -0.04em;
+}
+
+.step-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px; font-weight: 700;
+  color: var(--white); margin-bottom: 10px;
+}
+
+.step-desc {
+  font-size: 13px; line-height: 1.65;
+  color: rgba(255,255,255,0.35);
+}
+
+/* Stack */
+#stack { background: rgba(255,255,255,0.01); }
+
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.stack-card {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 24px 20px;
+  transition: all 0.25s;
+  background: rgba(255,255,255,0.02);
+  position: relative; overflow: hidden;
+}
+.stack-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(55,138,221,0.08), transparent 70%);
+  opacity: 0; transition: opacity 0.3s;
+}
+.stack-card:hover { border-color: rgba(55,138,221,0.3); transform: translateY(-3px); }
+.stack-card:hover::after { opacity: 1; }
+
+.stack-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px; font-weight: 700;
+  color: var(--white); margin-bottom: 4px;
+}
+.stack-type {
+  font-size: 12px; color: rgba(255,255,255,0.3);
+}
+
+/* About */
+#about {
+  background: var(--ink);
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+}
+
+.about-stats {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  margin-top: 48px;
+}
+
+.stat-card {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px; padding: 24px 20px;
+  background: rgba(255,255,255,0.02);
+}
+
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 36px; font-weight: 800;
+  color: var(--light); line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  font-size: 12px; color: rgba(255,255,255,0.35);
+  line-height: 1.4;
+}
+
+.about-visual-wrap {
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Posts / Content section */
+#content { background: rgba(255,255,255,0.01); }
+
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.post-card {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px; padding: 32px;
+  background: rgba(255,255,255,0.02);
+  transition: all 0.25s;
+  text-decoration: none; color: inherit;
+  display: block;
+}
+.post-card:hover {
+  border-color: rgba(55,138,221,0.25);
+  background: rgba(24,95,165,0.06);
+  transform: translateY(-3px);
+}
+
+.post-tag {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--mid); margin-bottom: 14px;
+}
+
+.post-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px; font-weight: 700;
+  color: var(--white); line-height: 1.3;
+  margin-bottom: 12px;
+}
+
+.post-excerpt {
+  font-size: 13px; line-height: 1.65;
+  color: rgba(255,255,255,0.35);
+}
+
+.post-arrow {
+  font-size: 18px; color: var(--mid);
+  margin-top: 20px; display: block;
+  transition: transform 0.2s;
+}
+.post-card:hover .post-arrow { transform: translateX(6px); }
+
+/* Contact */
+#contact {
+  background: var(--ink);
+}
+
+.contact-inner {
+  max-width: 700px; margin: 0 auto; text-align: center;
+}
+.contact-inner .section-tag { justify-content: center; }
+.contact-inner .section-tag::before { display: none; }
+.contact-inner .section-title { text-align: center; }
+.contact-inner .section-sub { margin: 0 auto 56px; text-align: center; }
+
+.contact-box {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: clamp(40px,6vw,64px);
+  background: rgba(255,255,255,0.02);
+  position: relative; overflow: hidden;
+}
+.contact-box::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--mid), transparent);
+}
+
+.contact-email {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(18px, 2.5vw, 26px);
+  font-weight: 700; color: var(--light);
+  margin-bottom: 8px;
+}
+
+.contact-note {
+  font-size: 13px; color: rgba(255,255,255,0.3);
+  margin-bottom: 36px;
+}
+
+.contact-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* Footer */
+footer {
+  padding: 32px clamp(24px, 5vw, 80px);
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  flex-wrap: wrap; gap: 16px;
+}
+
+.footer-brand {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+
+.footer-tagline {
+  font-size: 12px; color: rgba(255,255,255,0.2);
+  font-style: italic;
+}
+
+.footer-copy {
+  font-size: 11px; color: rgba(255,255,255,0.2);
+}
+
+/* Animations */
+.reveal {
+  opacity: 0; transform: translateY(32px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-visual { display: none; }
+  .steps { grid-template-columns: 1fr 1fr; }
+  .about-grid { grid-template-columns: 1fr; gap: 48px; }
+  .about-visual-wrap { display: none; }
+  .nav-links { display: none; }
+}
+
+@media (max-width: 600px) {
+  .steps { grid-template-columns: 1fr; }
+  .step { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg class="nav-logo-mark" width="32" height="20" viewBox="0 0 32 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="6" cy="10" r="5" stroke="#185FA5" stroke-width="1.5"/>
+      <circle cx="6" cy="10" r="2" fill="#185FA5"/>
+      <circle cx="26" cy="10" r="5" stroke="#185FA5" stroke-width="1.5"/>
+      <circle cx="26" cy="10" r="2" fill="#185FA5"/>
+      <line x1="11" y1="10" x2="21" y2="10" stroke="#B5D4F4" stroke-width="1" stroke-dasharray="3,2"/>
+      <rect x="12" y="6" width="8" height="8" rx="2" fill="#185FA5"/>
+      <text x="16" y="12" text-anchor="middle" font-size="4" font-weight="700" fill="white" font-family="Arial,sans-serif">BP</text>
+    </svg>
+    <span class="nav-wordmark">Bridge<span>point</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#how">Process</a></li>
+    <li><a href="#stack">Stack</a></li>
+    <li><a href="#content">Lessons</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Get in touch</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-lines"></div>
+
+  <div class="hero-content">
+    <div class="hero-tag">Integration Specialist · Australia</div>
+    <h1>
+      Your systems.<br/>
+      <span class="highlight">Finally</span><br/>
+      <span class="accent">connected.</span>
+    </h1>
+    <p class="hero-sub">We connect your business platforms so data flows automatically — no more manual entry, no more silos, no more errors. Earned in production. Shared openly.</p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-primary">Start a conversation</a>
+      <a href="#content" class="btn-outline">Read the lessons</a>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <svg class="node-diagram" viewBox="0 0 480 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="240" cy="240" r="200" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <circle cx="240" cy="240" r="140" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <circle cx="240" cy="240" r="80" stroke="rgba(55,138,221,0.12)" stroke-width="1"/>
+      <!-- Outer nodes -->
+      <circle cx="80" cy="240" r="32" stroke="#185FA5" stroke-width="1.5" fill="rgba(24,95,165,0.1)"/>
+      <circle cx="80" cy="240" r="8" fill="#185FA5"/>
+      <circle cx="400" cy="240" r="32" stroke="#185FA5" stroke-width="1.5" fill="rgba(24,95,165,0.1)"/>
+      <circle cx="400" cy="240" r="8" fill="#185FA5"/>
+      <circle cx="240" cy="80" r="32" stroke="#185FA5" stroke-width="1.5" fill="rgba(24,95,165,0.1)"/>
+      <circle cx="240" cy="80" r="8" fill="#185FA5"/>
+      <circle cx="240" cy="400" r="32" stroke="#185FA5" stroke-width="1.5" fill="rgba(24,95,165,0.1)"/>
+      <circle cx="240" cy="400" r="8" fill="#185FA5"/>
+      <!-- Corner nodes -->
+      <circle cx="122" cy="122" r="20" stroke="#378ADD" stroke-width="1" fill="rgba(55,138,221,0.06)"/>
+      <circle cx="358" cy="122" r="20" stroke="#378ADD" stroke-width="1" fill="rgba(55,138,221,0.06)"/>
+      <circle cx="122" cy="358" r="20" stroke="#378ADD" stroke-width="1" fill="rgba(55,138,221,0.06)"/>
+      <circle cx="358" cy="358" r="20" stroke="#378ADD" stroke-width="1" fill="rgba(55,138,221,0.06)"/>
+      <!-- Connectors -->
+      <line x1="112" y1="240" x2="200" y2="240" stroke="#B5D4F4" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5"/>
+      <line x1="280" y1="240" x2="368" y2="240" stroke="#B5D4F4" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5"/>
+      <line x1="240" y1="112" x2="240" y2="200" stroke="#B5D4F4" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5"/>
+      <line x1="240" y1="280" x2="240" y2="368" stroke="#B5D4F4" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5"/>
+      <!-- Hub -->
+      <rect x="200" y="200" width="80" height="80" rx="12" fill="#0C447C" stroke="#378ADD" stroke-width="1.5"/>
+      <text x="240" y="232" text-anchor="middle" font-size="12" font-weight="700" fill="white" font-family="Arial,sans-serif">BRIDGE</text>
+      <text x="240" y="252" text-anchor="middle" font-size="12" fill="#B5D4F4" font-family="Arial,sans-serif">POINT</text>
+      <text x="240" y="268" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.3)" font-family="Arial,sans-serif" letter-spacing="2">INTEGRATION</text>
+      <!-- Node labels -->
+      <text x="80" y="244" text-anchor="middle" font-size="9" font-weight="600" fill="rgba(255,255,255,0.5)" font-family="Arial,sans-serif">ERP</text>
+      <text x="400" y="244" text-anchor="middle" font-size="9" font-weight="600" fill="rgba(255,255,255,0.5)" font-family="Arial,sans-serif">CRM</text>
+      <text x="240" y="84" text-anchor="middle" font-size="9" font-weight="600" fill="rgba(255,255,255,0.5)" font-family="Arial,sans-serif">HR</text>
+      <text x="240" y="404" text-anchor="middle" font-size="9" font-weight="600" fill="rgba(255,255,255,0.5)" font-family="Arial,sans-serif">FIN</text>
+    </svg>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust">
+  <span class="trust-label">Technologies</span>
+  <div class="trust-items">
+    <span class="trust-item">Dell Boomi</span>
+    <span class="trust-item">Workato</span>
+    <span class="trust-item">IFS Cloud</span>
+    <span class="trust-item">Java</span>
+    <span class="trust-item">Python</span>
+    <span class="trust-item">REST APIs</span>
+    <span class="trust-item">ERP Systems</span>
+    <span class="trust-item">iPaaS</span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-tag reveal">What we do</div>
+  <h2 class="section-title reveal">Integration services,<br/>end to end</h2>
+  <p class="section-sub reveal">From a single connection to a full multi-system architecture — scoped, built, and supported.</p>
+
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-num">01</div>
+      <div class="service-title">Integration Audit</div>
+      <div class="service-desc">Map your current systems, identify gaps, and deliver a clear roadmap — no commitment to proceed.</div>
+    </div>
+    <div class="service-card reveal reveal-delay-1">
+      <div class="service-num">02</div>
+      <div class="service-title">Quick Connect</div>
+      <div class="service-desc">A single, scoped integration between two platforms. Fast to deliver, immediate ROI on manual hours saved.</div>
+    </div>
+    <div class="service-card reveal reveal-delay-2">
+      <div class="service-num">03</div>
+      <div class="service-title">Full Integration Project</div>
+      <div class="service-desc">Multi-system architecture, designed and delivered end-to-end. Scoped, documented, and tested.</div>
+    </div>
+    <div class="service-card reveal reveal-delay-3">
+      <div class="service-num">04</div>
+      <div class="service-title">Ongoing Support</div>
+      <div class="service-desc">Monthly retainer covering monitoring, changes, new connections, and priority support.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-tag reveal">The process</div>
+  <h2 class="section-title reveal">Simple from<br/>start to finish</h2>
+  <p class="section-sub reveal">No jargon, no surprises. A clear process so you always know where things stand.</p>
+
+  <div class="steps reveal">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-title">Discovery call</div>
+      <div class="step-desc">We learn about your systems, pain points, and what a good outcome looks like.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-title">Scoping & proposal</div>
+      <div class="step-desc">We map the integration, define deliverables, and provide a fixed-price proposal.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-title">Build & test</div>
+      <div class="step-desc">We build, test thoroughly, and keep you updated. You see it before it goes live.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-title">Go live & support</div>
+      <div class="step-desc">We deploy, monitor the first weeks, and hand over full documentation.</div>
+    </div>
+  </div>
+</section>
+
+<!-- STACK -->
+<section id="stack">
+  <div class="section-tag reveal">Our stack</div>
+  <h2 class="section-title reveal">Tools we know<br/>inside out</h2>
+  <p class="section-sub reveal">We work with the platforms your business already uses — no rip-and-replace required.</p>
+
+  <div class="stack-grid">
+    <div class="stack-card reveal">
+      <div class="stack-name">Dell Boomi</div>
+      <div class="stack-type">iPaaS · Enterprise integration</div>
+    </div>
+    <div class="stack-card reveal reveal-delay-1">
+      <div class="stack-name">Workato</div>
+      <div class="stack-type">iPaaS · Workflow automation</div>
+    </div>
+    <div class="stack-card reveal reveal-delay-2">
+      <div class="stack-name">IFS Cloud</div>
+      <div class="stack-type">ERP · Integration & development</div>
+    </div>
+    <div class="stack-card reveal reveal-delay-1">
+      <div class="stack-name">Java</div>
+      <div class="stack-type">Custom connector development</div>
+    </div>
+    <div class="stack-card reveal reveal-delay-2">
+      <div class="stack-name">Python</div>
+      <div class="stack-type">Automation & data pipelines</div>
+    </div>
+    <div class="stack-card reveal reveal-delay-3">
+      <div class="stack-name">REST & SOAP APIs</div>
+      <div class="stack-type">Any platform with an API</div>
+    </div>
+    <div class="stack-card reveal reveal-delay-1" style="border-style: dashed; border-color: rgba(55,138,221,0.25);">
+      <div class="stack-name" style="color: var(--mid);">Your Platform</div>
+      <div class="stack-type">Not on the list? We're open to discussing other platforms based on your needs.</div>
+    </div>
+  </div>
+</section>
+
+<!-- LESSONS / CONTENT -->
+<section id="content">
+  <div class="section-tag reveal">Earned in production</div>
+  <h2 class="section-title reveal">Lessons from<br/>the field</h2>
+  <p class="section-sub reveal">Real integration knowledge shared openly. Not vendor marketing. Not theory. Actual lessons from actual projects.</p>
+
+  <div class="posts-grid">
+            <a href="https://www.linkedin.com/company/bridgepointintegration" target="_blank" class="post-card reveal">
+      <div class="post-tag">Architecture</div>
+      <div class="post-title">Map the business process first. Technology second.</div>
+      <div class="post-excerpt">The most expensive mistake I see: opening the tool before understanding the process.</div>
+      <span class="post-arrow">→</span>
+    </a>
+    <a href="https://www.linkedin.com/company/bridgepointintegration" target="_blank" class="post-card reveal reveal-delay-1">
+      <div class="post-tag">Best Practice</div>
+      <div class="post-title">Never hardcode field names. Ever.</div>
+      <div class="post-excerpt">Build your mappings with a configuration layer. One extra day now saves a week of panic later.</div>
+      <span class="post-arrow">→</span>
+    </a>
+    <a href="https://www.linkedin.com/company/bridgepointintegration" target="_blank" class="post-card reveal reveal-delay-2">
+      <div class="post-tag">Security</div>
+      <div class="post-title">An integration breach is quieter than you think.</div>
+      <div class="post-excerpt">It's slower. And often far more damaging than a website hack. Here's what happens and how to stop it.</div>
+      <span class="post-arrow">→</span>
+    </a>
+    <a href="https://www.linkedin.com/company/bridgepointintegration" target="_blank" class="post-card reveal">
+      <div class="post-tag">Error Handling</div>
+      <div class="post-title">Error handling is where most projects fall apart.</div>
+      <div class="post-excerpt">Not the happy path. The happy path always works in testing. It's everything else that matters.</div>
+      <span class="post-arrow">→</span>
+    </a>
+    <a href="https://www.linkedin.com/company/bridgepointintegration" target="_blank" class="post-card reveal reveal-delay-1">
+      <div class="post-tag">IFS Cloud</div>
+      <div class="post-title">5 things I wish I knew before my first IFS Cloud project.</div>
+      <div class="post-excerpt">The data model, events vs polling, real data volumes — lessons earned the hard way.</div>
+      <span class="post-arrow">→</span>
+    </a>
+    <a href="https://www.linkedin.com/company/bridgepointintegration" target="_blank" class="post-card reveal reveal-delay-2">
+      <div class="post-tag">Lessons</div>
+      <div class="post-title">"Can you just connect them?" — what that phrase actually means.</div>
+      <div class="post-excerpt">Three words. Said casually. The word "just" is where the real work hides.</div>
+      <span class="post-arrow">→</span>
+    </a>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div>
+      <div class="section-tag reveal">About</div>
+      <h2 class="section-title reveal">Integration specialists,<br/>not generalists</h2>
+      <p class="section-sub reveal" style="margin-bottom:0;">Bridgepoint Integration was founded to give small and mid-sized businesses access to the same integration capability that large enterprises rely on — without the complexity or the cost.<br/><br/>Based in Australia. Focused on industries where getting data right actually matters.</p>
+      <div class="about-stats reveal">
+        <div class="stat-card">
+          <div class="stat-num">10+</div>
+          <div class="stat-label">Years integration experience</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">3</div>
+          <div class="stat-label">iPaaS platforms certified</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">IFS</div>
+          <div class="stat-label">Cloud specialist</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">AU</div>
+          <div class="stat-label">Australia-based & focused</div>
+        </div>
+      </div>
+    </div>
+    <div class="about-visual-wrap reveal">
+      <svg width="360" height="360" viewBox="0 0 360 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="180" cy="180" r="160" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <circle cx="180" cy="180" r="110" stroke="rgba(55,138,221,0.08)" stroke-width="1"/>
+        <circle cx="180" cy="180" r="60" stroke="rgba(55,138,221,0.15)" stroke-width="1"/>
+        <circle cx="40" cy="180" r="28" stroke="#185FA5" stroke-width="1.5" fill="rgba(24,95,165,0.1)"/>
+        <circle cx="40" cy="180" r="8" fill="#185FA5"/>
+        <circle cx="320" cy="180" r="28" stroke="#185FA5" stroke-width="1.5" fill="rgba(24,95,165,0.1)"/>
+        <circle cx="320" cy="180" r="8" fill="#185FA5"/>
+        <circle cx="180" cy="40" r="28" stroke="#185FA5" stroke-width="1.5" fill="rgba(24,95,165,0.1)"/>
+        <circle cx="180" cy="40" r="8" fill="#185FA5"/>
+        <circle cx="180" cy="320" r="28" stroke="#185FA5" stroke-width="1.5" fill="rgba(24,95,165,0.1)"/>
+        <circle cx="180" cy="320" r="8" fill="#185FA5"/>
+        <circle cx="83" cy="83" r="18" stroke="#378ADD" stroke-width="1" fill="rgba(55,138,221,0.06)"/>
+        <circle cx="277" cy="83" r="18" stroke="#378ADD" stroke-width="1" fill="rgba(55,138,221,0.06)"/>
+        <circle cx="83" cy="277" r="18" stroke="#378ADD" stroke-width="1" fill="rgba(55,138,221,0.06)"/>
+        <circle cx="277" cy="277" r="18" stroke="#378ADD" stroke-width="1" fill="rgba(55,138,221,0.06)"/>
+        <line x1="68" y1="180" x2="150" y2="180" stroke="#B5D4F4" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.4"/>
+        <line x1="210" y1="180" x2="292" y2="180" stroke="#B5D4F4" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.4"/>
+        <line x1="180" y1="68" x2="180" y2="150" stroke="#B5D4F4" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.4"/>
+        <line x1="180" y1="210" x2="180" y2="292" stroke="#B5D4F4" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.4"/>
+        <rect x="150" y="150" width="60" height="60" rx="10" fill="#0C447C" stroke="#378ADD" stroke-width="1.5"/>
+        <text x="180" y="175" text-anchor="middle" font-size="11" font-weight="700" fill="white" font-family="Arial,sans-serif">BRIDGE</text>
+        <text x="180" y="193" text-anchor="middle" font-size="10" fill="#B5D4F4" font-family="Arial,sans-serif">POINT</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="section-tag reveal">Get in touch</div>
+    <h2 class="section-title reveal">Ready to connect<br/>your systems?</h2>
+    <p class="section-sub reveal">Start with a free 30-minute discovery call. No commitment, no jargon — just a conversation about what you need.</p>
+
+    <div class="contact-box reveal">
+      <div class="contact-email">hello@bridgepointintegration.com.au</div>
+      <div class="contact-note">We typically respond within one business day</div>
+      <div class="contact-btns">
+        <button class="btn-primary" onclick="window.open('mailto:hello@bridgepointintegration.com.au','_blank')">Send an email</button>
+        <a href="https://www.linkedin.com/company/bridgepointintegration" target="_blank" class="btn-outline">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">Bridgepoint Integration</div>
+  <div class="footer-tagline">Earned in production. Shared openly.</div>
+  <div class="footer-copy">© 2025 Bridgepoint Integration</div>
+</footer>
+
+<script>
+// Custom cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.transform = `translate(${mx-4}px, ${my-4}px)`;
+  ring.style.transform = `translate(${mx-16}px, ${my-16}px)`;
+});
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    ring.style.width = '48px'; ring.style.height = '48px';
+    ring.style.borderColor = 'rgba(55,138,221,0.7)';
+    ring.style.transform = `translate(${mx-24}px, ${my-24}px)`;
+  });
+  el.addEventListener('mouseleave', () => {
+    ring.style.width = '32px'; ring.style.height = '32px';
+    ring.style.borderColor = 'rgba(55,138,221,0.4)';
+  });
+});
+
+// Smooth scroll for nav links
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    const id = a.getAttribute('href').replace('#', '');
+    const target = document.getElementById(id);
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// Scroll reveal
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>
